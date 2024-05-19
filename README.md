@@ -6,3 +6,7 @@
 - sam build 로 빌드
 - sam local start-api --port ${포트번호} 로 로컬 api 테스트
 - sam deploy --guided --profile ${개인 pc에 등록한 프로필} 로 배포(프로필 디폴트 값 있음)
+---
+# 배포 자동화
+- sam pipeline bootstrap --stage ${dev, stage, prod} 중 선택
+- 
