@@ -47,7 +47,7 @@ permissions:
   contents: read
 jobs:
   test:
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' || github.event.inputs.deploy-feature == 'true' || github.event.inputs.deploy-prod == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -121,7 +121,7 @@ jobs:
 #            --role-arn ${TESTING_CLOUDFORMATION_EXECUTION_ROLE}
 
   build-and-package:
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.event.inputs.deploy-feature == 'true' || github.event.inputs.deploy-prod == 'true' }}
     needs: [test]
     runs-on: ubuntu-latest
     steps:
@@ -136,14 +136,14 @@ jobs:
       - name: build jar
         run: |
           chmod +x gradlew
-          ./gradlew build
+          ./gradlew packageJar
 
 
       - name: Build resources
         run: sam build --template ${SAM_TEMPLATE} --use-container
 
       - name: Assume the testing pipeline user role
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v1-node16 # aws-actions/configure-aws-credentials@v3
         with:
           aws-region: ${{ env.TESTING_REGION }}
           role-to-assume: ${{ env.TESTING_PIPELINE_EXECUTION_ROLE }}
@@ -217,13 +217,13 @@ jobs:
             --role-arn ${TESTING_CLOUDFORMATION_EXECUTION_ROLE}
 
   integration-test:
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.event.inputs.deploy-feature == 'true' || github.event.inputs.deploy-prod == 'true' }}
     needs: [deploy-testing]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: |
-          # trigger the integration tests here
+          echo "대충 Integration test !"
 
   deploy-prod:
     if: github.event.inputs.deploy-prod == 'true'
