@@ -1,0 +1,9 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "sample-app"
+resolve_s3 = true
+s3_prefix = "sample-app"
+region = "ap-northeast-2"
+profile = "joyfulviper12"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
