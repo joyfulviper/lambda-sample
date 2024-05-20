@@ -1,0 +1,52 @@
+name: oidc-sam-test
+
+on:
+  workflow_dispatch
+
+env:
+  BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  TESTING_STACK_NAME: lambda-sample-dev
+  TESTING_PIPELINE_EXECUTION_ROLE: ${{ secrets.TESTING_PIPELINE_EXECUTION_ROLE }}
+  TESTING_CLOUDFORMATION_EXECUTION_ROLE: ${{ secrets.TESTING_CLOUDFORMATION_EXECUTION_ROLE }}
+  TESTING_ARTIFACTS_BUCKET: ${{ secrets.TESTING_ARTIFACTS_BUCKET }}
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  S3lsTest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: test
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: s3 대충 테스트
+        run: |
+          aws s3 ls
+
+      # Test assuming TESTING_PIPELINE_EXECUTION_ROLE
+      - name: Assume TESTING_PIPELINE_EXECUTION_ROLE
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.TESTING_PIPELINE_EXECUTION_ROLE }}
+          role-session-name: testing-pipe-line
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - name: Assume TESTING_CLOUDFORMATION_EXECUTION_ROLE
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.TESTING_CLOUDFORMATION_EXECUTION_ROLE }}
+          role-session-name: testing-cloudformation
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
