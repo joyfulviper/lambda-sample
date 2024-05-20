@@ -42,11 +42,12 @@ jobs:
           role-duration-seconds: 3600
           role-skip-session-tagging: true
 
-      - name: Assume TESTING_CLOUDFORMATION_EXECUTION_ROLE
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ env.TESTING_CLOUDFORMATION_EXECUTION_ROLE }}
-          role-session-name: testing-cloudformation
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
+# 이건 당연히 테스트 통과 안함 아래 역할에는 AssumeRoleWithWebIdentity 권한을 안줌
+#      - name: Assume TESTING_CLOUDFORMATION_EXECUTION_ROLE
+#        uses: aws-actions/configure-aws-credentials@v1-node16
+#        with:
+#          aws-region: ${{ env.AWS_REGION }}
+#          role-to-assume: ${{ env.TESTING_CLOUDFORMATION_EXECUTION_ROLE }}
+#          role-session-name: testing-cloudformation
+#          role-duration-seconds: 3600
+#          role-skip-session-tagging: true
